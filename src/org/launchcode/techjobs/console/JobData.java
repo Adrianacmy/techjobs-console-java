@@ -4,12 +4,14 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
+import javax.net.ssl.SSLContext;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.Collections.sort;
 
 /**
  * Created by LaunchCode
@@ -42,7 +44,7 @@ public class JobData {
                 values.add(aValue);
             }
         }
-
+        sort(values);
         return values;
     }
 
@@ -50,8 +52,9 @@ public class JobData {
 
         // load data, if not already loaded
         loadData();
-
-        return allJobs;
+        ArrayList<HashMap<String, String>> allJobsCopy = new ArrayList<>();
+        Collections.copy(allJobsCopy, allJobs);
+        return allJobsCopy;
     }
 
     /**
@@ -74,13 +77,15 @@ public class JobData {
 
         for (HashMap<String, String> row : allJobs) {
 
-            String aValue = row.get(column);
+            String aValue = row.get(column.toLowerCase());
 
-            if (aValue.contains(value)) {
+            if (aValue.toLowerCase().contains(value.toLowerCase())) {
                 jobs.add(row);
             }
         }
-
+        if (jobs.size() <= 0){
+            System.out.println("Your search item is on Mars @_@");
+        }
         return jobs;
     }
 
@@ -120,7 +125,7 @@ public class JobData {
             isDataLoaded = true;
 
         } catch (IOException e) {
-            System.out.println("Failed to load job data");
+            System.out.println("Failed to load job data :(");
             e.printStackTrace();
         }
     }
@@ -129,4 +134,22 @@ public class JobData {
      * find by value
      */
 
+    public static ArrayList<HashMap<String, String>> findByValue(String value) {
+
+        // load data, if not already loaded
+        loadData();
+
+        ArrayList<HashMap<String, String>> jobs = new ArrayList<>();
+        boolean searchResult = true;
+
+        for (HashMap<String, String> row : allJobs) {
+            if (row.toString().toLowerCase().contains(value)){
+                jobs.add(row);
+            }
+        }
+        if (jobs.size() <= 0){
+            System.out.println("Your search item is on Mars @_@");
+        }
+        return jobs;
+    }
 }
